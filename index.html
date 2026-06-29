@@ -1,237 +1,252 @@
-<script src="http://www.google.com/jsapi" type="text/javascript"></script> 
-<script type="text/javascript">google.load("jquery", "1.3.2");</script>
-
-<style type="text/css">
-	body {
-		font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-		font-weight:300;
-		font-size:18px;
-		margin-left: auto;
-		margin-right: auto;
-		width: 1100px;
-	}
-	
-	h1 {
-		font-size:32px;
-		font-weight:300;
-	}
-	
-	.disclaimerbox {
-		background-color: #eee;		
-		border: 1px solid #eeeeee;
-		border-radius: 10px ;
-		-moz-border-radius: 10px ;
-		-webkit-border-radius: 10px ;
-		padding: 20px;
-	}
-
-	video.header-vid {
-		height: 140px;
-		border: 1px solid black;
-		border-radius: 10px ;
-		-moz-border-radius: 10px ;
-		-webkit-border-radius: 10px ;
-	}
-	
-	img.header-img {
-		height: 140px;
-		border: 1px solid black;
-		border-radius: 10px ;
-		-moz-border-radius: 10px ;
-		-webkit-border-radius: 10px ;
-	}
-	
-	img.rounded {
-		border: 1px solid #eeeeee;
-		border-radius: 10px ;
-		-moz-border-radius: 10px ;
-		-webkit-border-radius: 10px ;
-	}
-	
-	a:link,a:visited
-	{
-		color: #1367a7;
-		text-decoration: none;
-	}
-	a:hover {
-		color: #208799;
-	}
-	
-	td.dl-link {
-		height: 160px;
-		text-align: center;
-		font-size: 22px;
-	}
-	
-	.layered-paper-big { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
-		box-shadow:
-		0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
-		5px 5px 0 0px #fff, /* The second layer */
-		5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
-		10px 10px 0 0px #fff, /* The third layer */
-		10px 10px 1px 1px rgba(0,0,0,0.35), /* The third layer shadow */
-		15px 15px 0 0px #fff, /* The fourth layer */
-		15px 15px 1px 1px rgba(0,0,0,0.35), /* The fourth layer shadow */
-		20px 20px 0 0px #fff, /* The fifth layer */
-		20px 20px 1px 1px rgba(0,0,0,0.35), /* The fifth layer shadow */
-		25px 25px 0 0px #fff, /* The fifth layer */
-		25px 25px 1px 1px rgba(0,0,0,0.35); /* The fifth layer shadow */
-		margin-left: 10px;
-		margin-right: 45px;
-	}
-
-	.paper-big { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
-		box-shadow:
-		0px 0px 1px 1px rgba(0,0,0,0.35); /* The top layer shadow */
-
-		margin-left: 10px;
-		margin-right: 45px;
-	}
-
-
-	.layered-paper { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
-		box-shadow:
-		0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
-		5px 5px 0 0px #fff, /* The second layer */
-		5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
-		10px 10px 0 0px #fff, /* The third layer */
-		10px 10px 1px 1px rgba(0,0,0,0.35); /* The third layer shadow */
-		margin-top: 5px;
-		margin-left: 10px;
-		margin-right: 30px;
-		margin-bottom: 5px;
-	}
-	
-	.vert-cent {
-		position: relative;
-		top: 50%;
-		transform: translateY(-50%);
-	}
-	
-	hr
-	{
-		border: 0;
-		height: 1px;
-		background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-	}
-</style>
-
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<title>PH-Reg(ICML24)</title>
-	<meta property="og:image" content="Path to my teaser.png"/> <!-- Facebook automatically scrapes this. Go to https://developers.facebook.com/tools/debug/ if you update and want to force Facebook to rescrape. -->
-	<meta property="og:title" content="Creative and Descriptive Paper Title." />
-	<meta property="og:description" content="Paper description." />
-
-	<!-- Get from Google Analytics -->
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src=""></script> 
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		gtag('js', new Date());
-
-		gtag('config', 'UA-75863369-6');
-	</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell-LCC: Your Data Manifold is Secretly a Reward Model</title>
+<meta name="description" content="Shell-LCC derives dense, differentiable, nearly cost-free geometric reward signals from the SFT data manifold to improve text-to-video generation.">
+<meta property="og:title" content="Your Data Manifold is Secretly a Reward Model: Shell-LCC for Text-to-Video Generation"/>
+<meta property="og:description" content="A cost-free, annotation-free geometric reward for text-to-video generation."/>
+<meta property="og:image" content="static/figs/teaser.jpg"/>
+<meta property="og:type" content="website"/>
+<link rel="stylesheet" href="static/css/style.css">
 </head>
-
 <body>
-	<br>
-	<center>
-		<span style="font-size:36px">Deep Regression Representation Learning with Topology</span>
-		<table align=center width=800px>
-			<table align=center width=800px>
-				<tr>
-					<td align=center width=150px>
-						<center>
-							<span style="font-size:24px"><a href="https://needylove.github.io/">Shihao Zhang</a></span>
-						</center>
-					</td>
-					<td align=center width=150px>
-						<center>
-							<span style="font-size:24px"><a href="https://ml.comp.nus.edu.sg//">Kenji Kawaguchi</a></span>
-						</center>
-					</td>
-					<td align=center width=150px>
-						<center>
-							<span style="font-size:24px"><a href="https://www.comp.nus.edu.sg/~ayao/">Angela Yao</a></span>
-						</center>
-					</td>
-				</tr>
-			</table>
-			<table align=center width=250px>
-				<tr>
-					<td align=center width=120px>
-						<center>
-							<span style="font-size:24px"><a href='https://arxiv.org/pdf/2404.13904'>[Paper]</a></span>
-						</center>
-					</td>
-					<td align=center width=120px>
-						<center>
-							<span style="font-size:24px"><a href='./poster.pdf'>[Poster]</a></span>
-						</center>
-					</td>
-					<td align=center width=120px>
-						<center>
-							<span style="font-size:24px"><a href='./RegTopology_slides.pdf'>[Slides]</a></span><br>
-						</center>
-					</td>
-					<td align=center width=120px>
-						<center>
-							<span style="font-size:24px"><a href='https://github.com/needylove/PH-Reg'>[GitHub]</a></span><br>
-						</center>
-					</td>
-					<td align=center width=120px>
-						<center>
-							<span style="font-size:24px"><a href='https://youtu.be/iPpmMH7pkNs'>[Youtube]</a></span><br>
-						</center>
-					</td>
-				</tr>
-			</table>
-		</table>
-	</center>
 
-	<center>
-		<table align=center width=850px>
-			<tr>
-				<td width=260px>
-					<center>
-						<img src="img/target_space.gif" width="266"> <img src="img/baseline.gif" width="266"><img src="img/ph-reg.gif" width="266">
-					</center>
-				</td>
-			</tr>
-		</table>
-	</center>
+<!-- ======================= HERO ======================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="venue">ECCV 2026 &nbsp;&middot;&nbsp; Manifold Reward for Text-to-Video</div>
+    <h1 class="title">Your Data Manifold is Secretly a Reward Model
+      <span class="sub">Shell-LCC for Text-to-Video Generation</span>
+    </h1>
 
+    <div class="authors">
+      <a href="https://needylove.github.io/">Shihao Zhang</a><sup>1</sup>,
+      Yunzhi Li<sup>1</sup>,
+      Yuguang Yan<sup>2</sup>,
+      Junzhe Zhang<sup>1</sup>,
+      Wei Zhao<sup>1</sup>,
+      Bohan Wang<sup>1</sup>,
+      Hanwang Zhang<sup>1</sup>
+    </div>
+    <div class="affil">
+      <sup>1</sup>Huawei Central Research Institute &nbsp;&nbsp;
+      <sup>2</sup>Guangdong University of Technology
+    </div>
 
+    <div class="btns">
+      <a class="btn primary" href="static/paper.pdf">
+        <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15a0 0 0 0 1 0 0H6a0 0 0 0 1 0 0V2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6"/></svg>
+        Paper
+      </a>
+      <a class="btn" href="https://arxiv.org/abs/XXXX.XXXXX">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        arXiv
+      </a>
+      <a class="btn" href="https://github.com/needylove/Shell-LCC">
+        <svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.7c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0C17 4.7 18 5 18 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        Code
+      </a>
+      <a class="btn" href="https://huggingface.co/Needylove">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        Models
+      </a>
+      <a class="btn" href="#bibtex">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        BibTeX
+      </a>
+    </div>
+  </div>
+</header>
 
-	<table align=center width=850px>
-		<center><h1>Abstract</h1></center>
-		<tr>
-			<td>
-				Most works studying representation learning focus only on classification and neglect regression. Yet, the learning objectives and, therefore, the representation topologies of the two tasks are fundamentally different: classification targets class separation, leading to disconnected representations, whereas regression requires ordinality with respect to the target, leading to continuous representations. We thus wonder how the effectiveness of a regression representation is influenced by its topology, with evaluation based on the Information Bottleneck (IB) principle. The IB principle is an important framework that provides principles for learning effective representations. We establish two connections between it and the topology of regression representations. The first connection reveals that a lower intrinsic dimension of the feature space implies a reduced complexity of the representation Z. This complexity can be quantified as the conditional entropy of Z on the target Y, and serves as an upper bound on the generalization error. The second connection suggests a feature space that is topologically similar to the target space will better align with the IB principle. Based on these two connections, we introduce PH-Reg, a regularizer specific to regression that matches the intrinsic dimension and topology of the feature space with the target space. Experiments on synthetic and real-world regression tasks demonstrate the benefits of PH-Reg.
-			</td>
-		</tr>
-	</table>
-	<br>
+<!-- ======================= TEASER ======================= -->
+<section>
+  <div class="wrap">
+    <h2>A cost-free reward, hidden in your data</h2>
+    <p class="lead">We argue that <span class="tag">your data manifold is secretly a reward model</span>.
+      By modeling the manifold of high-quality SFT video patches and pulling generated latents onto it,
+      Shell-LCC yields dense, differentiable, nearly free reward signals &mdash; no human labels, no external reward model.</p>
+    <figure>
+      <img src="static/figs/visual_main1.jpg" alt="Qualitative comparison">
+      <figcaption>From top to bottom: <b>SFT baseline</b>, <b>+LCC</b>, <b>+Shell-LCC (ours)</b>, and <b>+DPO</b>.
+        Shell-LCC restores high-frequency details (red), recovers realistic micro-textures instead of the over-smoothed
+        &ldquo;plastic&rdquo; look (yellow), and synthesizes complex scenes with intricate local detail (blue) &mdash;
+        while better preserving dense structure than DPO and avoiding the mean regression of LCC.</figcaption>
+    </figure>
+  </div>
+</section>
 
+<!-- ======================= ABSTRACT ======================= -->
+<section>
+  <div class="wrap">
+    <h2>Abstract</h2>
+    <p class="body">
+      Recent text-to-video (T2V) diffusion models rely heavily on auxiliary reward signals (e.g., via reward models or DPO)
+      to align generated content with human aesthetics and improve realism. These signals, however, incur substantial
+      computational overhead, require costly human annotations, and often yield limited improvement in fine-grained local
+      details. In this paper, we argue that <b>your data manifold is secretly a reward model</b>. By explicitly modeling the
+      manifold structure of high-quality Supervised Fine-Tuning (SFT) data and encouraging video latents to lie on this
+      manifold, we derive dense, differentiable, and nearly cost-free reward signals that significantly improve video quality,
+      particularly in mitigating low-level distortions. Our modeling builds upon Local Coordinate Coding (LCC), which captures
+      the &lsquo;skeleton&rsquo; of the manifold. However, directly applying LCC suffers from <b>mean regression</b>, pulling
+      latents toward the geometric mean and losing high-frequency details. We therefore extend it to
+      <b>Shell Local Coordinate Coding (Shell-LCC)</b>, which models the manifold &lsquo;surface&rsquo; as an isotropic shell
+      to align with the true high-density region. Experiments demonstrate that our approach improves realism, enhances
+      high-frequency details, reduces over-smoothing artifacts, and alleviates motion blur.
+    </p>
+  </div>
+</section>
 
-	<center><h1>Talk</h1></center>
-	<p align="center">
-		<iframe width="660" height="395" src="https://www.youtube.com/embed/iPpmMH7pkNs?si=kupo7SMaZwGcIbQs" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
-	</p>
+<!-- ======================= METHOD ======================= -->
+<section>
+  <div class="wrap">
+    <h2>Why a shell, not a point?</h2>
+    <p class="lead">In high dimensions, probability mass concentrates on a thin shell (Gaussian Annulus Theorem),
+      not at the mean. Standard LCC reconstructs toward the local mean &mdash; an empty, low-density core that looks blurry.
+      Shell-LCC instead pulls generated latents onto the high-density shell, preserving sharpness.</p>
+    <figure>
+      <img src="static/figs/visual_meanReg.jpg" alt="Radial reconstruction reveals shell geometry">
+      <figcaption><b>Radial reconstruction.</b> Starting from the LCC reconstruction \(\hat z\) (local mean) and moving
+        outward, decoded videos transition from mean-like blur, to sharp realistic structure on the shell, to distortion when
+        pushed too far &mdash; directly revealing the shell-shaped latent manifold.</figcaption>
+    </figure>
+    <figure style="max-width:760px">
+      <img src="static/figs/dist_analysis.png" alt="Manifold distance distribution">
+      <figcaption><b>Manifold distance \(R_{dist}\).</b> Real (GT) latents concentrate at a stable non-zero radius
+        (0.880&plusmn;0.076), while generated latents drift outward (0.918&plusmn;0.083) &mdash; making \(R_{dist}\)
+        a discriminative, differentiable reward that penalizes generative distortion.</figcaption>
+    </figure>
+  </div>
+</section>
 
-	<hr>
-	<table align=center width=900px>
-		<tr>
-			<td width=400px>
-				<left>
-					This template was originally made by <a href="http://web.mit.edu/phillipi/">Phillip Isola</a> and <a href="http://richzhang.github.io/">Richard Zhang</a> for a <a href="http://richzhang.github.io/colorization/">colorful</a> ECCV project; the code can be found <a href="https://github.com/richzhang/webpage-template">here</a>.
-				</left>
-			</td>
-		</tr>
-	</table>
+<!-- ======================= VIDEO COMPARISONS ======================= -->
+<section>
+  <div class="wrap">
+    <h2>Video comparisons &mdash; Wan-T2V-1.3B</h2>
+    <p class="lead">Left: <b>baseline</b>. Right: <b>+ Shell-LCC</b>. Same prompt, same seed.
+      <em>(Placeholder clips &mdash; more models &amp; prompts coming soon.)</em></p>
 
-<br>
+    <div class="prompt-block">
+      <p class="prompt-txt">&ldquo;In a school hallway, a girl with a ponytail suddenly slaps the boy next to her; close-up captures both changing expressions.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/00_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/00_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <p class="prompt-txt">&ldquo;Office lunch break: one employee eats takeout, another naps at the desk, a third plays computer games by the window; a panning shot sweeps across all three.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/01_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/01_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <p class="prompt-txt">&ldquo;Two students meet in the campus plaza, exchanging a handshake then a warm embrace; golden autumn light, sycamore leaves drifting, cinematic warm tones.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/02_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/02_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <p class="prompt-txt">&ldquo;Boiling water pours into a celadon teapot, emerald tea leaves unfurl and tumble, tea poured into a transparent cup with sunlight through the color; close-up.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/03_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/03_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= OPEN-SOURCE RESULTS ======================= -->
+<section>
+  <div class="wrap">
+    <h2>Generalizes across open-source models</h2>
+    <p class="lead">Shell-LCC sharpens fine structures and suppresses over-smoothing on both Wan-T2V-1.3B and UltraWan-T2V-1.3B.</p>
+    <figure>
+      <img src="static/figs/result_comparison_wan1.jpg" alt="Open-source qualitative comparison">
+      <figcaption>From top to bottom: Wan-T2V-1.3B, Wan-T2V-1.3B&nbsp;+&nbsp;Shell-LCC, UltraWan-T2V-1.3B, and
+        UltraWan-T2V-1.3B&nbsp;+&nbsp;Shell-LCC, for &ldquo;A 3D model of an 1800s Victorian house&rdquo;. Shell-LCC sharpens
+        window lattices and facade details while suppressing baseline over-smoothing.</figcaption>
+    </figure>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Aesthetic&nbsp;Q.</th><th>Imaging&nbsp;Q.</th><th>Overall&nbsp;Consist.</th><th>Motion&nbsp;Smooth.</th><th>Subject&nbsp;Consist.</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Wan-T2V-1.3B</td><td>0.6244</td><td>0.6629</td><td>0.2271</td><td>0.9848</td><td>0.9654</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC</td><td>0.6253</td><td>0.7037 <span class="up">+4.1</span></td><td>0.2292</td><td>0.9871</td><td>0.9715</td></tr>
+          <tr><td>UltraWan-T2V-1.3B</td><td>0.5744</td><td>0.6756</td><td>0.2288</td><td>0.9657</td><td>0.9225</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC</td><td>0.6299 <span class="up">+5.6</span></td><td>0.7396 <span class="up">+6.4</span></td><td>0.2236</td><td>0.9918</td><td>0.9658</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lead" style="margin-top:16px;font-size:14px">VBench dimensions; higher is better. Shell-LCC sharply improves
+      Imaging Quality (low-level fidelity) without trading off aesthetics, semantic alignment, or temporal consistency.</p>
+  </div>
+</section>
+
+<!-- ======================= TRAINING DYNAMICS ======================= -->
+<section>
+  <div class="wrap">
+    <h2>Controlled deblurring</h2>
+    <p class="lead">Shell-LCC progressively removes motion blur, but over-optimization re-induces mean regression and collapse
+      &mdash; so the reward is applied with early stopping.</p>
+    <figure>
+      <img src="static/figs/visual_iteration.jpg" alt="Training dynamics">
+      <figcaption>Motion deblurring across iterations. Shell-LCC reduces baseline motion blur, but prolonged training
+        (e.g., iter. 4999) regresses toward the mean \(\hat z\), highlighting the trade-off between removing
+        out-of-manifold blur and preserving genuine high-frequency detail.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================= BIBTEX ======================= -->
+<section id="bibtex">
+  <div class="wrap">
+    <h2>BibTeX</h2>
+    <div class="bibtex">
+      <button class="copybtn" onclick="copyBib()">Copy</button>
+      <pre id="bibcode">@inproceedings{zhang2026shelllcc,
+  title     = {Your Data Manifold is Secretly a Reward Model:
+               Shell-LCC for Text-to-Video Generation},
+  author    = {Zhang, Shihao and Li, Yunzhi and Yan, Yuguang and
+               Zhang, Junzhe and Zhao, Wei and Wang, Bohan and Zhang, Hanwang},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Shihao Zhang et al. &middot;
+      <a href="https://github.com/needylove/Shell-LCC">GitHub</a> &middot;
+      <a href="https://huggingface.co/Needylove">HuggingFace</a> &middot;
+      <a href="static/paper.pdf">Paper</a>
+    </p>
+    <p style="font-size:12.5px;opacity:.7">Page template adapted for Shell-LCC. MathJax for inline notation.</p>
+  </div>
+</footer>
+
+<script>
+function copyBib(){
+  const t=document.getElementById('bibcode').innerText;
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=document.querySelector('.copybtn');b.textContent='Copied!';
+    setTimeout(()=>b.textContent='Copy',1500);
+  });
+}
+</script>
+<script>
+  window.MathJax={tex:{inlineMath:[['\\(','\\)']]}};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
