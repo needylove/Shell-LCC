@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pth
+*.ckpt
+*.safetensors
+outputs/
+manifolds/
+records/
+*.mp4
+*.log
+.DS_Store
+
+# example assets we DO publish (exceptions to the *.mp4 / *.pth ignores above)
+!data/videos/
+!data/videos/*.mp4
+!model/
+!model/shell_lcc.pth

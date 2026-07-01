@@ -1,0 +1,15 @@
+# Python deps for Shell-LCC (manifold training + T2V manifold-reward finetuning + evaluation).
+# PyTorch: install the build matching your CUDA from https://pytorch.org
+torch>=2.1
+torchvision>=0.16
+numpy>=1.23
+einops>=0.6
+imageio[ffmpeg]>=2.25
+imageio-ffmpeg>=0.4
+Pillow>=9.0
+tqdm>=4.64
+peft>=0.7          # LoRA finetuning path (train_T2V_model.py / generate_videos.py)
+
+# The T2V backbone (WanModel / Wan2.1 VAE / T5 encoder / schedulers) is NOT on PyPI — install the
+# official Wan repo from source so `import wan` works:
+#   pip install git+https://github.com/Wan-Video/Wan2.2.git
