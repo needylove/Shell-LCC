@@ -158,6 +158,40 @@
   </div>
 </section>
 
+<!-- ======================= SCALES TO LARGER MODELS ======================= -->
+<section>
+  <div class="wrap">
+    <h2>Scales to larger T2V models</h2>
+    <p class="lead">The same Shell-LCC manifold transfers across model scales without retraining:
+      on a <b>4.5B</b> T2V model it sharpens fine detail while preserving composition, and on
+      <b>Wan2.1-T2V-14B</b> it lifts overall visual quality and prompt fidelity.</p>
+
+    <div class="prompt-block">
+      <p class="prompt-txt"><b>4.5B</b> &mdash; &ldquo;Two students meet in the campus plaza, exchanging a handshake then a warm embrace; golden autumn light, cinematic warm tones.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/45b_02_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/45b_02_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <p class="prompt-txt"><b>4.5B</b> &mdash; &ldquo;Through an open kitchen window a young mother stirs soup; outside, a boy swings happily in the backyard as swallows cross the orange sunset &mdash; a split-screen of warm indoor and outdoor scenes.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/45b_05_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/45b_05_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <p class="prompt-txt"><b>Wan2.1-T2V-14B</b> &mdash; &ldquo;On a dim center stage, a magician in a black tailcoat waves his wand; the wand traces an arc of light and a white dove flies out of a silk top hat, feathers glittering in the spotlight.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/14b_06_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/14b_06_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ======================= OPEN-SOURCE RESULTS ======================= -->
 <section>
   <div class="wrap">
