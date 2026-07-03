@@ -63,6 +63,18 @@
     <p class="lead">We argue that <span class="tag">your data manifold is secretly a reward model</span>.
       By modeling the manifold of high-quality SFT video patches and pulling generated latents onto it,
       Shell-LCC yields dense, differentiable, nearly free reward signals &mdash; no human labels, no external reward model.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="num">0</div>
+        <div class="lbl">human labels / external reward models &mdash; the reward comes from the SFT data itself</div></div>
+      <div class="stat"><div class="num">2.5M</div>
+        <div class="lbl">manifold parameters &mdash; 0.2% of Wan&#8209;T2V&#8209;1.3B, near-zero training overhead</div></div>
+      <div class="stat"><div class="num">+4.1</div>
+        <div class="lbl">VBench Imaging Quality on Wan&#8209;T2V&#8209;1.3B (66.3 &rarr; 70.4), aesthetics &amp; semantics intact</div></div>
+      <div class="stat"><div class="num">108 <small>vs 100</small></div>
+        <div class="lbl">human A/B realism score against the SFT baseline; semantic alignment unchanged (101)</div></div>
+    </div>
+
     <figure>
       <img src="static/figs/visual_main1.jpg" alt="Qualitative comparison">
       <figcaption>From top to bottom: <b>SFT baseline</b>, <b>+LCC</b>, <b>+Shell-LCC (ours)</b>, and <b>+DPO</b>.
@@ -91,16 +103,51 @@
       to align with the true high-density region. Experiments demonstrate that our approach improves realism, enhances
       high-frequency details, reduces over-smoothing artifacts, and alleviates motion blur.
     </p>
+    <div class="cards">
+      <div class="card"><h3>&#127919; Manifold as reward</h3>
+        <p>The intrinsic manifold of SFT data serves as a <b>cost-free reward model</b>: built at the
+        spatio-temporal patch level, it yields dense, differentiable rewards without the annotation
+        and compute costs of RLHF.</p></div>
+      <div class="card"><h3>&#128737;&#65039; Shell-LCC</h3>
+        <p>Standard LCC suffers a provable <b>mean-regression</b> bias. Shell-LCC models the data
+        surface as an <b>isotropic shell</b> (point-to-surface alignment), preserving high-frequency
+        structural detail.</p></div>
+      <div class="card"><h3>&#128200; Works across models</h3>
+        <p>Improves realism and fine-grained imaging quality on a proprietary 4.5B model, Wan&#8209;T2V&#8209;1.3B
+        and UltraWan &mdash; without sacrificing semantics or temporal consistency, and <b>orthogonal to DPO</b>.</p></div>
+    </div>
   </div>
 </section>
 
 <!-- ======================= METHOD ======================= -->
 <section>
   <div class="wrap">
-    <h2>Why a shell, not a point?</h2>
-    <p class="lead">In high dimensions, probability mass concentrates on a thin shell (Gaussian Annulus Theorem),
-      not at the mean. Standard LCC reconstructs toward the local mean &mdash; an empty, low-density core that looks blurry.
-      Shell-LCC instead pulls generated latents onto the high-density shell, preserving sharpness.</p>
+    <h2>Method: from data manifold to dense reward</h2>
+    <ol class="steps">
+      <li><b>Extract dense patches.</b> Encode SFT videos with the frozen 3D VAE and flatten the latent volume
+        into spatio-temporal patches &mdash; a single 5-second clip already yields <b>230,400</b> patches.</li>
+      <li><b>Learn the skeleton (LCC).</b> Approximate the patch manifold with M=4096 learnable anchors and an
+        amortized coordinate predictor: each patch is a sparse local linear combination of nearby anchors.</li>
+      <li><b>Learn the surface (Shell-LCC).</b> Calibrate dimensions with a learnable scale &sigma; (diagonal
+        Mahalanobis) and constrain the normalized residual to a <b>unit shell</b>, with a log-&sigma; regularizer
+        &mdash; the negative log-likelihood of a shell-structured Gaussian.</li>
+      <li><b>Freeze &amp; reward.</b> The manifold distance \(R_{dist}\) of generated patches is a dense,
+        differentiable reward: fine-tuning the T2V model to keep latents on the shell removes blur, noise and
+        motion artifacts while keeping legitimate high-frequency detail.</li>
+    </ol>
+
+    <h2 style="margin-top:46px">Why a shell, not a point?</h2>
+    <p class="lead">Two provable failure modes of naive manifold rewards motivate the shell.</p>
+    <div class="cards">
+      <div class="card"><h3>Mean-regression theorem</h3>
+        <p>For convex local reconstruction, the LCC objective decomposes into a reconstruction pull <i>plus a
+        local-variance pull toward the anchor centroid</i> &mdash; so the optimum systematically shrinks toward the
+        local mean. Enforcing plain LCC reconstruction therefore over-smooths: blurred textures, lost detail.</p></div>
+      <div class="card"><h3>The empty core (Gaussian Annulus)</h3>
+        <p>In high dimensions, probability mass concentrates on a thin shell of radius \(\approx\sqrt{d}\); the
+        region near the mean holds <i>exponentially small</i> mass. The LCC reconstruction sits exactly in this
+        hollow, low-density core &mdash; the worst possible reward target.</p></div>
+    </div>
     <figure>
       <img src="static/figs/visual_meanReg.jpg" alt="Radial reconstruction reveals shell geometry">
       <figcaption><b>Radial reconstruction.</b> Starting from the LCC reconstruction \(\hat z\) (local mean) and moving
@@ -113,6 +160,33 @@
         (0.880&plusmn;0.076), while generated latents drift outward (0.918&plusmn;0.083) &mdash; making \(R_{dist}\)
         a discriminative, differentiable reward that penalizes generative distortion.</figcaption>
     </figure>
+
+    <div class="minitables">
+      <div class="tablewrap">
+        <table>
+          <caption>Manifold distinguishability: % of pairs with \(R_{dist}(z_{gt}) < R_{dist}(z_{gen})\)</caption>
+          <thead><tr><th>Manifold</th><th>Acc (%)</th></tr></thead>
+          <tbody>
+            <tr><td>LCC (ep. 200)</td><td>92.7</td></tr>
+            <tr><td>Reconstruction only</td><td>83.2</td></tr>
+            <tr class="ours"><td>Shell-LCC</td><td>91.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <caption>Data efficiency: videos used to train the manifold</caption>
+          <thead><tr><th>#Videos</th><th>100</th><th>1,000</th><th>2,500 (full)</th></tr></thead>
+          <tbody><tr><td>Acc (%)</td><td>90.1</td><td>91.4</td><td>91.4</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px;font-size:14px">Dropping the locality constraint collapses
+      distinguishability (&minus;9.5%): pure reconstruction degenerates into an identity map with no geometry.
+      Shell-LCC trades a sliver of <i>trivial</i> accuracy (won by exploiting high-variance dimensions) for equal
+      sensitivity to fine-grained, low-variance detail. And because every 5-second clip contributes 230k patches,
+      <b>100 videos already reach 90.1%</b> &mdash; the manifold is extremely data-efficient, and robust to
+      hyperparameters (91.1&ndash;91.8% across M, &tau;&#8321;, &tau;&#8322; settings).</p>
   </div>
 </section>
 
@@ -195,8 +269,10 @@
 <!-- ======================= OPEN-SOURCE RESULTS ======================= -->
 <section>
   <div class="wrap">
-    <h2>Generalizes across open-source models</h2>
-    <p class="lead">Shell-LCC sharpens fine structures and suppresses over-smoothing on both Wan-T2V-1.3B and UltraWan-T2V-1.3B.</p>
+    <h2>Results: better imaging quality, nothing traded away</h2>
+    <p class="lead">On a proprietary 4.5B model and two open-source backbones, Shell-LCC lifts VBench Imaging
+      Quality while aesthetics, semantics and temporal consistency hold steady &mdash; the failure mode of
+      preference-based baselines.</p>
     <figure>
       <img src="static/figs/result_comparison_wan1.jpg" alt="Open-source qualitative comparison">
       <figcaption>From top to bottom: Wan-T2V-1.3B, Wan-T2V-1.3B&nbsp;+&nbsp;Shell-LCC, UltraWan-T2V-1.3B, and
@@ -210,15 +286,33 @@
           <tr><th>Model</th><th>Aesthetic&nbsp;Q.</th><th>Imaging&nbsp;Q.</th><th>Overall&nbsp;Consist.</th><th>Motion&nbsp;Smooth.</th><th>Subject&nbsp;Consist.</th></tr>
         </thead>
         <tbody>
+          <tr><td>Our 4.5B SFT baseline</td><td>0.6724</td><td>0.7509</td><td>0.2637</td><td>0.9891</td><td>0.9680</td></tr>
+          <tr><td>&nbsp;&nbsp;+ DPO</td><td>0.6784</td><td>0.7397 <span style="color:#c0392b;font-weight:700">&minus;1.1</span></td><td>0.2677</td><td>0.9840</td><td>0.9637</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>0.6735</td><td>0.7631 <span class="up">+1.2</span></td><td>0.2670</td><td>0.9900</td><td>0.9682</td></tr>
           <tr><td>Wan-T2V-1.3B</td><td>0.6244</td><td>0.6629</td><td>0.2271</td><td>0.9848</td><td>0.9654</td></tr>
-          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC</td><td>0.6253</td><td>0.7037 <span class="up">+4.1</span></td><td>0.2292</td><td>0.9871</td><td>0.9715</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>0.6253</td><td>0.7037 <span class="up">+4.1</span></td><td>0.2292</td><td>0.9871</td><td>0.9715</td></tr>
           <tr><td>UltraWan-T2V-1.3B</td><td>0.5744</td><td>0.6756</td><td>0.2288</td><td>0.9657</td><td>0.9225</td></tr>
-          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC</td><td>0.6299 <span class="up">+5.6</span></td><td>0.7396 <span class="up">+6.4</span></td><td>0.2236</td><td>0.9918</td><td>0.9658</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>0.6299 <span class="up">+5.6</span></td><td>0.7396 <span class="up">+6.4</span></td><td>0.2236</td><td>0.9918</td><td>0.9658</td></tr>
         </tbody>
       </table>
     </div>
     <p class="lead" style="margin-top:16px;font-size:14px">VBench dimensions; higher is better. Shell-LCC sharply improves
       Imaging Quality (low-level fidelity) without trading off aesthetics, semantic alignment, or temporal consistency.</p>
+
+    <div class="callout"><b>Shell-LCC vs. DPO &mdash; complementary, not competing.</b> They operate at different
+      granularities: DPO uses video-level preferences for global alignment and <i>gains aesthetics at the cost of
+      imaging quality</i> (+0.60 / &minus;1.12); Shell-LCC uses dense patch-level geometry and targets exactly those
+      low-level distortions (+1.22 on our 4.5B model, +4.08 on Wan-T2V-1.3B) without touching content. In an
+      independent human A/B test, Shell-LCC scores <b>108 vs 100</b> on realism with semantic alignment unchanged
+      (101 vs 100).</div>
+
+    <figure>
+      <img src="static/figs/teaser.jpg" alt="Qualitative comparison vs LCC and DPO">
+      <figcaption>Same prompt, four post-training strategies (top to bottom: <b>SFT baseline</b>, <b>+LCC</b>,
+        <b>+Shell-LCC (ours)</b>, <b>+DPO</b>). LCC's mean regression blurs the window view (red); DPO restyles the
+        scene but keeps the plastic skin texture (yellow); Shell-LCC recovers realistic micro-texture and crisp
+        background detail while preserving the layout.</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -234,6 +328,10 @@
         (e.g., iter. 4999) regresses toward the mean \(\hat z\), highlighting the trade-off between removing
         out-of-manifold blur and preserving genuine high-frequency detail.</figcaption>
     </figure>
+    <p class="lead" style="margin-top:18px;font-size:14px">Low-level distortions such as motion blur are entangled
+      with genuine high-frequency information: over-aggressive optimization discards both and re-induces mean
+      regression. We currently mitigate this with early stopping; combining the patch-level reward with
+      preference-based methods (DPO) and scaling to larger backbones are natural next steps.</p>
   </div>
 </section>
 

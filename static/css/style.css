@@ -118,3 +118,25 @@ footer a{color:#aeb8ca}
   .vpair{grid-template-columns:1fr}
   section{padding:40px 0}
 }
+
+/* ---- stat tiles / cards / mini tables (page v2) ---- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:960px;margin:30px auto 0}
+.stat{background:#fff;border:1px solid #e9ebf1;border-radius:14px;padding:18px 16px;text-align:center;box-shadow:0 6px 24px rgba(20,30,60,.05)}
+.stat .num{font-size:26px;font-weight:800;color:var(--accent);line-height:1.1}
+.stat .num small{font-size:15px;font-weight:700}
+.stat .lbl{margin-top:6px;font-size:13px;color:#6a7280;line-height:1.35}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px;margin:26px auto 0}
+.card{background:#fff;border:1px solid #e9ebf1;border-radius:14px;padding:20px;box-shadow:0 6px 24px rgba(20,30,60,.05)}
+.card h3{margin:0 0 8px;font-size:16px;color:#23283a}
+.card p{margin:0;font-size:14px;color:#5b6472;line-height:1.55}
+@media(max-width:760px){.cards{grid-template-columns:1fr}}
+.steps{max-width:840px;margin:8px auto 0;padding:0;counter-reset:st;list-style:none}
+.steps li{position:relative;padding:10px 0 10px 46px;font-size:15px;color:#454b57;line-height:1.5}
+.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:8px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.minitables{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px;margin:26px auto 0}
+.minitables .tablewrap{margin:0}
+.minitables caption{caption-side:top;text-align:left;font-size:13.5px;font-weight:700;color:#333;padding:0 0 8px}
+@media(max-width:760px){.minitables{grid-template-columns:1fr}}
+tr.ours td{background:#f2fbf8}
+.callout{max-width:840px;margin:24px auto 0;background:#f6f8ff;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;font-size:14.5px;color:#454b57;line-height:1.6}
