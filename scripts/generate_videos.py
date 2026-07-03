@@ -78,6 +78,9 @@ def parse_args():
     p.add_argument("--shift", type=float, default=5.0)   # Wan 720p default shift=5
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--fps", type=int, default=16)
+    p.add_argument("--skip_base", action="store_true",
+                   help="do not re-generate the base column (it is deterministic for a fixed seed, so "
+                        "you can copy base mp4s from a previous run into out_dir); base stays in the manifest")
     return p.parse_args()
 
 
@@ -187,6 +190,9 @@ def main():
     # columns: base | adapter labels... | ckpt_label (full)
     col_modes = ["base"] + adapter_names + (["full"] if full_model is not None else [])
     col_labels = ["base"] + [os.path.basename(a) for a in adapters] + ([args.ckpt_label] if full_model is not None else [])
+    man_labels = list(col_labels)               # manifest always lists base
+    if args.skip_base:                          # generate only the non-base columns
+        col_modes, col_labels = col_modes[1:], col_labels[1:]
     print("columns:", col_labels, flush=True)
 
     # ---- 4. per prompt: run all columns from the SAME noise, save one mp4 per column ----
@@ -201,8 +207,8 @@ def main():
     # independent of which shard produced them). Other shards only write their videos.
     if si == 0:
         items = [{"idx": i, "prompt": all_prompts[i],
-                  "videos": {lbl: f"{i:02d}_{lbl}.mp4" for lbl in col_labels}} for i in full_idxs]
-        manifest = {"labels": col_labels, "fps": args.fps, "items": items}
+                  "videos": {lbl: f"{i:02d}_{lbl}.mp4" for lbl in man_labels}} for i in full_idxs]
+        manifest = {"labels": man_labels, "fps": args.fps, "items": items}
         with open(os.path.join(args.out_dir, "manifest.json"), "w", encoding="utf-8") as f:
             json.dump(manifest, f, ensure_ascii=False, indent=2)
         print(f"done. manifest: {len(items)} prompts x {len(col_labels)} columns -> {args.out_dir}/manifest.json", flush=True)

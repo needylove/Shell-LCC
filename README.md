@@ -4,7 +4,7 @@
 # Your Data Manifold is Secretly a Reward Model
 ### Shell-LCC for Text-to-Video Generation &nbsp;·&nbsp; ECCV 2026
 
-[Project Page](https://needylove.github.io/Shell-LCC/) · [Paper](https://needylove.github.io/Shell-LCC/static/paper.pdf) · [Models (HuggingFace)](https://huggingface.co/Needylove)
+[Project Page](https://needylove.github.io/Shell-LCC/) · [Paper](https://arxiv.org/pdf/2606.30248) · [Models (HuggingFace)](https://huggingface.co/Needylove/Shell-LCC)
 
 </div>
 
@@ -54,6 +54,22 @@ huggingface-cli download Wan-AI/Wan2.1-T2V-1.3B --local-dir ./Wan2.1-T2V-1.3B
 
 ---
 
+## Released checkpoints
+
+Finetuned T2V checkpoints on [HuggingFace](https://huggingface.co/Needylove/Shell-LCC/tree/main)
+(full state dicts; load with `--full_ckpt` in `scripts/generate_videos.py`, or `--init_ckpt` to
+continue training):
+
+| Checkpoint | Backbone | Recipe | Character |
+|---|---|---|---|
+| `wan2.1-t2v-1.3b_shell-lcc_lr1e-5_step100.pth` | Wan2.1-T2V-1.3B | lr 1e-5, eff. batch 8 | **balanced default** — strongest overall detail gain |
+| `wan2.1-t2v-1.3b_shell-lcc_lr5e-6_step700.pth` | Wan2.1-T2V-1.3B | lr 5e-6, eff. batch 8 | **most faithful** — smallest content change; best on texture-heavy prompts |
+| `wan2.1-t2v-14b_shell-lcc_lr1e-5_step10.pth` | Wan2.1-T2V-14B | lr 1e-5, FSDP full, 10 steps | richer fine detail (the 14B base is already sharp, so the gain is subtler than on 1.3B) |
+
+`model/shell_lcc.pth` in this repo is the frozen Shell-LCC manifold used to train all three.
+
+---
+
 ## Layout
 
 ```
@@ -87,9 +103,10 @@ bash scripts/launchers/extract_vae_example.sh          # data/videos -> data/vae
 # ② Train the Shell-LCC manifold (Stage-1 LCC, Stage-2 shell)
 bash scripts/launchers/train_manifold_example.sh       # data/vae -> model/... (shell_lcc.pth)
 
-# ③ Finetune the T2V model with the manifold reward (larger --batch usually helps)
+# ③ Finetune the T2V model with the manifold reward
 python scripts/make_captions.py                        # -> data/captions.txt
-bash scripts/launchers/train_t2v_example.sh            # -> model/t2v_run/step*/wan_full.pth
+bash scripts/launchers/train_t2v_example.sh            # 1.3B -> model/t2v_run/step*/wan_full.pth
+#    (14B: bash scripts/launchers/train_t2v_14b_example.sh — full-param + FSDP, stop early)
 
 # ④ Evaluate: generate once (multi-GPU), then metrics + compare + montage (CPU, seconds)
 NPROC=4 bash scripts/launchers/generate_videos_example.sh   # -> eval/videos + manifest.json
@@ -126,14 +143,23 @@ usable as `--manifold_ckpt` for stage ③.
 
 ## Training tips (from experiments)
 
-**Finetuning the T2V model (stage ③) — learning rate (`--lr`):**
-- **`1e-5`** — default, safe.
-- **`3e-5`** — maximizes the effect, but usually only ~5–10 steps before it collapses (**stop early**),
-  and the generated content changes more.
-- **`5e-6`** — a good balance: improves quality while keeping the content change small.
+**Finetuning the T2V model (stage ③) — learning rate (`--lr`), measured at effective batch 8 on
+Wan2.1-T2V-1.3B (per-prompt metrics + frame inspection):**
+- **`1e-5`** — default sweet spot; peaks around step 80–100 (balanced: strong detail on most prompts).
+- **`5e-6`** — most faithful (content change stays smallest); improves slowly but keeps improving —
+  peak around step 600–700, where texture-heavy prompts even overtake `1e-5`.
 
-**Finetuning the T2V model (stage ③) — batch size:** a larger (effective) batch usually works better.
-Use `--batch` and/or more GPUs; effective batch = `batch × #GPUs`.
+**Finetuning the T2V model (stage ③) — batch size:** going from tiny batches (1–2) to a moderate
+effective batch (~8 = `batch × #GPUs`) clearly helps. Beyond that, at a fixed lr, larger batches
+mostly make the model traverse the reward landscape faster — the peak arrives earlier. Treat effective batch 8 as
+the default; if you scale it up, scale the lr schedule too.
+
+**Scaling to Wan2.1-T2V-14B (stage ③):** use **full-param + FSDP** (`--full_parallel fsdp`);
+with lr `1e-5` and effective batch 8 the useful window is **very short (~10 steps)** — save every 5 steps and stop
+early (`scripts/launchers/train_t2v_14b_example.sh`). The gain on 14B is mainly **richer fine detail**; since the
+14B base is already quite sharp, the improvement is less pronounced than on 1.3B. In general the benefit scales
+with how over-smoothed the base model is — our 4.5B model, whose outputs have the strongest over-smoothed
+"plastic" look, shows the most striking improvement (see the project page).
 
 **Training the manifold (stage ②) — loss can look flat while quality changes a lot.** The manifold
 training loss often barely moves, yet the resulting generation quality differs substantially. **Do not
@@ -154,10 +180,15 @@ Generate once (`generate_videos.py`), then metrics and comparison are pure-CPU a
 
 Reported as `lap_ratio`, `hf_ratio` (ckpt / base; >1 = more than base).
 
-> **`lap`/`hf` are proxies, only meaningful when `change` is small.** When `change` is large, base and
-> ckpt are effectively different videos, so their `lap`/`hf` are not comparable. A *genuine* improvement
-> is roughly `hf_ratio>1 AND lap_ratio>1 AND change modest` — and even then, **watch the
-> `*_compare.mp4` videos** to confirm it is real detail and not noise.
+> **`lap`/`hf` are proxies — no metric here replaces looking at the videos.** Three failure modes we
+> hit in practice: (1) when `change` is large, base and ckpt are effectively different videos, so their
+> `lap`/`hf` are not comparable; (2) a **small `change` does not prove the video is healthy** — a model
+> that collapses to a flat noise canvas whose color matches the scene's mean keeps `change` low while
+> `lap`/`hf` skyrocket; (3) `hf_ratio` explodes on low-texture prompts (a clear sky has near-zero base
+> high-frequency energy), and noise itself is high-frequency — treat `hf_ratio >> lap_ratio` as a
+> **noise / reward-hacking alarm**, not as quality. A *genuine* improvement is roughly `lap_ratio>1 AND
+> hf_ratio>1 AND change modest` — and even then, **watch the `*_compare.mp4` videos / montages** to
+> confirm it is real detail.
 
 For a static, zoom-in look at the pixels, `make_montage.py` stitches `base | ckpt` frames into a PNG
 per prompt (optionally center-cropped and enlarged) — the eyeball companion to the proxy metrics:
@@ -192,8 +223,8 @@ none is part of the core method:
 ## Notes
 
 - `--batch` in `train_T2V_model.py` is a **true batch** (B noises in one forward), decoupled from #GPUs;
-  effective batch = `batch × #GPUs`. Larger usually gives better detail, but peaks and collapses
-  earlier — stop at the peak step.
+  effective batch = `batch × #GPUs`. Moderate batches (effective ≈ 8) work best in our runs; larger
+  batches at a fixed lr peak earlier and can underperform — stop at the peak step.
 - The `neg` (negative prompt) strings in the generation scripts are kept in Chinese on purpose: Wan2.1
   was trained with Chinese negatives, which work better than an English translation. They are model
   input, not comments.

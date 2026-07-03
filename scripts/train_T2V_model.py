@@ -138,8 +138,10 @@ def main():
         checkpoint_path=os.path.join(args.wan_dir, "models_t5_umt5-xxl-enc-bf16.pth"),
         tokenizer_path=os.path.join(args.wan_dir, "google/umt5-xxl"),
     )
+    contexts = []
     with torch.no_grad():
-        contexts = [c.detach() for c in text_encoder(caps_txt, device)]
+        for i in range(0, len(caps_txt), 64):   # chunked: large caption sets would OOM in one T5 pass
+            contexts += [c.detach() for c in text_encoder(caps_txt[i:i + 64], device)]
     del text_encoder
     torch.cuda.empty_cache()
     log(f"cached {len(contexts)} caption embeddings")
