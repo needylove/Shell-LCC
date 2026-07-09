@@ -263,6 +263,14 @@
         <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/14b_06_full.mp4" autoplay loop muted playsinline></video></div>
       </div>
     </div>
+
+    <div class="prompt-block">
+      <p class="prompt-txt"><b>Wan2.1-T2V-14B</b> &mdash; &ldquo;A baker pulls a tray of golden bread from a stone oven, lit by dramatic rim lighting. Shallow depth of field macro. Ultra-detailed, realistic motion blur.&rdquo;</p>
+      <div class="vpair">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/14b_08_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">+ Shell-LCC</span><video src="static/videos/14b_08_full.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -346,6 +354,27 @@
         <div class="vcol"><span class="vlabel ours" style="background:rgba(240,180,60,.92);color:#3a2a05">Step 20</span><video src="static/videos/14b_cat_s20.mp4" autoplay loop muted playsinline></video></div>
         <div class="vcol"><span class="vlabel ours" style="background:rgba(220,90,70,.92);color:#fff">Step 40 &mdash; background noise</span><video src="static/videos/14b_cat_s40.mp4" autoplay loop muted playsinline></video></div>
       </div>
+
+      <div class="tablewrap" style="margin-top:18px">
+        <table>
+          <thead>
+            <tr><th>Reward step</th><th>Sharpness (lap, &times;baseline)</th><th>High-freq energy (hf, &times;baseline)</th><th>Content change</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>10</td><td>2.38</td><td>1.76</td><td>0.16</td></tr>
+            <tr><td>20</td><td>3.97</td><td>2.40</td><td>0.17</td></tr>
+            <tr><td>40</td><td>6.06</td><td>2.98</td><td>0.18</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prompt-txt" style="margin-top:12px;border-left-color:#dc5a46">
+        Medians over 8 evaluation prompts. <b>lap</b> = Laplacian-variance ratio vs. the baseline
+        (&gt;1 = sharper edges/textures); <b>hf</b> = fraction of FFT energy above &frac14; Nyquist, vs. baseline
+        (&gt;1 = more fine texture); <b>change</b> = mean pixel difference to the same-seed baseline video
+        (how much the content moved). The numbers confirm a real, growing detail gain on 14B &mdash; but note they
+        <i>keep</i> rising through step 40: high-frequency metrics cannot tell legitimate detail from
+        reward-hacked texture (the background noise above scores as &ldquo;detail&rdquo; too). Numbers select the
+        candidate; frames make the call.</p>
     </div>
   </div>
 </section>
