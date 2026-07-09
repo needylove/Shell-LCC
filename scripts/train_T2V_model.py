@@ -90,6 +90,9 @@ def parse_args():
     p.add_argument("--lora_rank", type=int, default=16)
     p.add_argument("--lora_alpha", type=int, default=16)
     p.add_argument("--margin", type=float, default=0.05)
+    p.add_argument("--reward_target", type=float, default=0.0,
+                   help=">0: optimize |dist - target| instead of minimizing dist to zero (band/shell "
+                        "target; pick the target from the reward value of a known-good checkpoint)")
     p.add_argument("--grad_clip", type=float, default=1.0)
     p.add_argument("--sigma_lo", type=float, default=0.7)
     p.add_argument("--sigma_hi", type=float, default=1.0)
@@ -265,6 +268,8 @@ def main():
 
         zf = torch.stack([z.float() for z in z_gens], 0)   # [B,16,T,H,W]
         reward = manifold.distance_reward(zf)
+        if args.reward_target > 0:              # band reward: pull dist TO the target, not to zero
+            reward = (reward - args.reward_target).abs()
         if args.no_drift:                       # pure manifold reward (paper setting)
             drift = torch.zeros((), device=device)
             loss = reward

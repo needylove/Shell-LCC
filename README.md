@@ -64,7 +64,8 @@ continue training):
 |---|---|---|---|
 | `wan2.1-t2v-1.3b_shell-lcc_lr1e-5_step100.pth` | Wan2.1-T2V-1.3B | lr 1e-5, eff. batch 8 | **balanced default** — strongest overall detail gain |
 | `wan2.1-t2v-1.3b_shell-lcc_lr5e-6_step700.pth` | Wan2.1-T2V-1.3B | lr 5e-6, eff. batch 8 | **most faithful** — smallest content change; best on texture-heavy prompts |
-| `wan2.1-t2v-14b_shell-lcc_lr1e-5_step10.pth` | Wan2.1-T2V-14B | lr 1e-5, FSDP full, 10 steps | richer fine detail (the 14B base is already sharp, so the gain is subtler than on 1.3B) |
+| `wan2.1-t2v-14b_shell-lcc_lr1e-5_band0.444_step20.pth` | Wan2.1-T2V-14B | lr 1e-5, FSDP full, **band reward** (`--reward_target 0.444`), 20 steps | **recommended 14B** — the band target roughly doubles both the usable window and the detail gain vs. the plain reward |
+| `wan2.1-t2v-14b_shell-lcc_lr1e-5_step10.pth` | Wan2.1-T2V-14B | lr 1e-5, FSDP full, 10 steps | plain-reward variant; richer fine detail (the 14B base is already sharp, so the gain is subtler than on 1.3B) |
 
 `model/shell_lcc.pth` in this repo is the frozen Shell-LCC manifold used to train all three.
 
@@ -154,12 +155,18 @@ effective batch (~8 = `batch × #GPUs`) clearly helps. Beyond that, at a fixed l
 mostly make the model traverse the reward landscape faster — the peak arrives earlier. Treat effective batch 8 as
 the default; if you scale it up, scale the lr schedule too.
 
-**Scaling to Wan2.1-T2V-14B (stage ③):** use **full-param + FSDP** (`--full_parallel fsdp`);
-with lr `1e-5` and effective batch 8 the useful window is **very short (~10 steps)** — save every 5 steps and stop
-early (`scripts/launchers/train_t2v_14b_example.sh`). The gain on 14B is mainly **richer fine detail**; since the
-14B base is already quite sharp, the improvement is less pronounced than on 1.3B. In general the benefit scales
-with how over-smoothed the base model is — our 4.5B model, whose outputs have the strongest over-smoothed
-"plastic" look, shows the most striking improvement (see the project page).
+**Scaling to Wan2.1-T2V-14B (stage ③):** use **full-param + FSDP** (`--full_parallel fsdp`) with lr `1e-5`
+and effective batch 8 (`scripts/launchers/train_t2v_14b_example.sh`). With the plain reward the useful window is
+**very short (~10 steps)**: the reward is minimized toward zero, but real data sits on a *shell* at a non-zero
+distance, so a 14B model (which descends fast) quickly overshoots through the shell and collapses. The fix is the
+**band reward** — `--reward_target τ` optimizes `|dist − τ|` instead, where τ is simply the logged `reward` value
+of a known-good checkpoint (we use `0.444`, the value at plain-reward step 10). This roughly **doubles both the
+usable window (~20 steps) and the detail gain**. Two caveats: (i) reward hacking still accumulates with steps —
+high-frequency noise gradually stamps onto flat backgrounds (see the cat sequence on the project page) — so still
+stop early and inspect frames; (ii) the gain on 14B is mainly **richer fine detail**: since the 14B base is
+already quite sharp, the improvement is less pronounced than on 1.3B. In general the benefit scales with how
+over-smoothed the base model is — our 4.5B model, whose outputs have the strongest over-smoothed "plastic" look,
+shows the most striking improvement (see the project page).
 
 **Training the manifold (stage ②) — loss can look flat while quality changes a lot.** The manifold
 training loss often barely moves, yet the resulting generation quality differs substantially. **Do not
