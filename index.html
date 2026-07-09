@@ -71,8 +71,8 @@
         <div class="lbl">manifold parameters &mdash; 0.2% of Wan&#8209;T2V&#8209;1.3B, near-zero training overhead</div></div>
       <div class="stat"><div class="num">+4.1</div>
         <div class="lbl">VBench Imaging Quality on Wan&#8209;T2V&#8209;1.3B (66.3 &rarr; 70.4), aesthetics &amp; semantics intact</div></div>
-      <div class="stat"><div class="num">100 <small>videos</small></div>
-        <div class="lbl">enough to train the manifold &mdash; 90.1% distinguishability, vs 91.4% with the full 2,500-video set</div></div>
+      <div class="stat"><div class="num">100 <small>&times; 5-s clips</small></div>
+        <div class="lbl">enough video to train the manifold &mdash; 90.1% distinguishability, vs 91.4% with the full 2,500-clip set</div></div>
     </div>
 
     <figure>
@@ -294,18 +294,19 @@
           <tr><th>Model</th><th>Aesthetic&nbsp;Q.</th><th>Imaging&nbsp;Q.</th><th>Overall&nbsp;Consist.</th><th>Motion&nbsp;Smooth.</th><th>Subject&nbsp;Consist.</th></tr>
         </thead>
         <tbody>
-          <tr><td>Our 4.5B SFT baseline</td><td>0.6724</td><td>0.7509</td><td>0.2637</td><td>0.9891</td><td>0.9680</td></tr>
-          <tr><td>&nbsp;&nbsp;+ DPO</td><td>0.6784</td><td>0.7397 <span style="color:#c0392b;font-weight:700">&minus;1.1</span></td><td>0.2677</td><td>0.9840</td><td>0.9637</td></tr>
-          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>0.6735</td><td>0.7631 <span class="up">+1.2</span></td><td>0.2670</td><td>0.9900</td><td>0.9682</td></tr>
-          <tr><td>Wan-T2V-1.3B</td><td>0.6244</td><td>0.6629</td><td>0.2271</td><td>0.9848</td><td>0.9654</td></tr>
-          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>0.6253</td><td>0.7037 <span class="up">+4.1</span></td><td>0.2292</td><td>0.9871</td><td>0.9715</td></tr>
-          <tr><td>UltraWan-T2V-1.3B</td><td>0.5744</td><td>0.6756</td><td>0.2288</td><td>0.9657</td><td>0.9225</td></tr>
-          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>0.6299 <span class="up">+5.6</span></td><td>0.7396 <span class="up">+6.4</span></td><td>0.2236</td><td>0.9918</td><td>0.9658</td></tr>
+          <tr><td>Our 4.5B SFT baseline</td><td>67.24</td><td>75.09</td><td>26.37</td><td>98.91</td><td>96.80</td></tr>
+          <tr><td>&nbsp;&nbsp;+ DPO</td><td>67.84</td><td>73.97 <span style="color:#c0392b;font-weight:700">&minus;1.1</span></td><td>26.77</td><td>98.40</td><td>96.37</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>67.35</td><td>76.31 <span class="up">+1.2</span></td><td>26.70</td><td>99.00</td><td>96.82</td></tr>
+          <tr><td>Wan-T2V-1.3B</td><td>62.44</td><td>66.29</td><td>22.71</td><td>98.48</td><td>96.54</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>62.53</td><td>70.37 <span class="up">+4.1</span></td><td>22.92</td><td>98.71</td><td>97.15</td></tr>
+          <tr><td>UltraWan-T2V-1.3B</td><td>57.44</td><td>67.56</td><td>22.88</td><td>96.57</td><td>92.25</td></tr>
+          <tr class="ours"><td>&nbsp;&nbsp;+ Shell-LCC (ours)</td><td>62.99 <span class="up">+5.6</span></td><td>73.96 <span class="up">+6.4</span></td><td>22.36</td><td>99.18</td><td>96.58</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="lead" style="margin-top:16px;font-size:14px">VBench dimensions; higher is better. Shell-LCC sharply improves
-      Imaging Quality (low-level fidelity) without trading off aesthetics, semantic alignment, or temporal consistency.</p>
+    <p class="lead" style="margin-top:16px;font-size:14px">VBench scores in % (higher is better); green/red deltas are
+      percentage points vs. the corresponding baseline. Shell-LCC sharply improves Imaging Quality (low-level
+      fidelity) without trading off aesthetics, semantic alignment, or temporal consistency.</p>
 
     <div class="callout"><b>Shell-LCC vs. DPO &mdash; complementary, not competing.</b> They operate at different
       granularities: DPO uses video-level preferences for global alignment and <i>gains aesthetics at the cost of
@@ -315,11 +316,11 @@
       (101 vs 100).</div>
 
     <figure>
-      <img src="static/figs/teaser.jpg" alt="Qualitative comparison vs LCC and DPO">
-      <figcaption>Same prompt, four post-training strategies (top to bottom: <b>SFT baseline</b>, <b>+LCC</b>,
-        <b>+Shell-LCC (ours)</b>, <b>+DPO</b>). LCC's mean regression blurs the window view (red); DPO restyles the
-        scene but keeps the plastic skin texture (yellow); Shell-LCC recovers realistic micro-texture and crisp
-        background detail while preserving the layout.</figcaption>
+      <img src="static/figs/dpo_vs_shell.jpg" alt="Shell-LCC vs DPO, zoomed comparison">
+      <figcaption><b>Shell-LCC vs. DPO on the same prompt</b> (crops from the qualitative comparison at the top of
+        the page). DPO restyles the scene but keeps the over-smoothed &ldquo;plastic&rdquo; skin texture (yellow
+        boxes); Shell-LCC recovers realistic micro-texture and crisp background detail (red / blue boxes) while
+        preserving the layout.</figcaption>
     </figure>
   </div>
 </section>
