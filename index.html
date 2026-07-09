@@ -332,6 +332,21 @@
       with genuine high-frequency information: over-aggressive optimization discards both and re-induces mean
       regression. We currently mitigate this with early stopping; combining the patch-level reward with
       preference-based methods (DPO) and scaling to larger backbones are natural next steps.</p>
+
+    <div class="prompt-block" style="margin-top:26px">
+      <p class="prompt-txt">Over-optimization, live on Wan2.1-T2V-14B &mdash; &ldquo;A close-up of a cat grooming
+        itself with its tongue, detailed fur and whiskers, warm light.&rdquo; As reward optimization proceeds
+        (step 10 &rarr; 40), fur and whisker detail on the subject keeps <b>increasing</b> &mdash; while
+        <b>reward hacking</b> gradually stamps high-frequency noise onto the flat background (watch the clean
+        orange wall turn grainy). The reward cannot tell legitimate detail from synthetic texture, which is
+        exactly why early stopping matters.</p>
+      <div class="vpair" style="grid-template-columns:repeat(2,1fr)">
+        <div class="vcol"><span class="vlabel base">Baseline</span><video src="static/videos/14b_cat_base.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours">Step 10</span><video src="static/videos/14b_cat_s10.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours" style="background:rgba(240,180,60,.92);color:#3a2a05">Step 20</span><video src="static/videos/14b_cat_s20.mp4" autoplay loop muted playsinline></video></div>
+        <div class="vcol"><span class="vlabel ours" style="background:rgba(220,90,70,.92);color:#fff">Step 40 &mdash; background noise</span><video src="static/videos/14b_cat_s40.mp4" autoplay loop muted playsinline></video></div>
+      </div>
+    </div>
   </div>
 </section>
 
